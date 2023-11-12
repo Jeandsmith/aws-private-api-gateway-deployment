@@ -18,7 +18,8 @@ from aws_cdk.aws_iam import (
     Effect,
     PolicyDocument,
 )
-from aws_cdk.aws_ec2 import Vpc, InterfaceVpcEndpointAwsService
+from aws_cdk.aws_ec2 import Vpc, InterfaceVpcEndpointAwsService, SecurityGroup, Peer, Port
+from aws_cdk.aws_lambda import Function, IFunction, Runtime, Code, LayerVersion, AssetCode
 
 
 class AwsStack(Stack):
@@ -35,11 +36,16 @@ class AwsStack(Stack):
             else Vpc.from_lookup(self, "vpc", vpc_id=vpc_id)
         )
 
+        sec_group = SecurityGroup(
+            self, "vpc-endpoint-sec-group", vpc=vpc, allow_all_outbound=True
+        )
+
         # Add the APIGW VPC Endpoint to set the endpoint as private
         vpc_endpoint = vpc.add_interface_endpoint(
             "api-interace",
             service=InterfaceVpcEndpointAwsService.APIGATEWAY,
             private_dns_enabled=True,
+            security_groups=[sec_group]
         )
 
         # Policy telling us that only resources coming through the vpc endpoint can execute our apu
@@ -83,3 +89,29 @@ class AwsStack(Stack):
         )
 
         api.root.add_proxy(any_method=True)
+
+        # Custom SG for the lambda to provide to the vpce SG 
+        function_sec_group = SecurityGroup(
+            self, "function-sec-group", vpc=vpc, allow_all_outbound=True
+        )
+
+        Function(
+            self,
+            "api-accessor-function",
+            runtime=Runtime.PYTHON_3_11,
+            code=Code.from_asset("aws/functions/"),
+            handler="index.handler",
+            layers=[
+                LayerVersion(
+                    self, "requests-layer", code=AssetCode.from_asset("aws/layers/python")
+                )
+            ],
+            vpc=vpc,
+            security_groups=[function_sec_group],
+            environment={
+                "PRIVATE_API": api.url
+            }
+        )
+
+        # Let the VPCe SG know our lambda will be doing inbound requests via the vpce
+        sec_group.add_ingress_rule(peer=Peer.security_group_id(function_sec_group.security_group_id), connection=Port.all_tcp())

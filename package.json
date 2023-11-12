@@ -4,7 +4,8 @@
   "description": "AWS Private API Gateway Deployment",
   "main": "index.js",
   "scripts": {
-    "test": "pytest --cov"
+    "test": "pytest --cov",
+    "cdk": "cd aws/ && cdk"
   },
   "repository": {
     "type": "git",

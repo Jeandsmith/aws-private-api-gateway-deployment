@@ -12,7 +12,7 @@
 7. Run `npm run deploy`.
 8. Run `npm run cdk -- destroy --force` when ready to remove the deployment.
 
-```json
+```python
 {
     "vpcId": "" # Default -- A new VPC will be created if field is removed
 }

@@ -5,8 +5,10 @@
   "main": "index.js",
   "scripts": {
     "test": "pytest --cov",
-    "cdk": "cd aws/ && cdk",
-    "build_layers": "pip install "
+    "cdk": "cd app/ && cdk",
+    "layers": "cd app/aws/layers && pip install -r requirements.txt -t python",
+    "install": "cd app && pip install -r requirements.txt -r requirements-dev.txt && npm run layers",
+    "deploy": "npm run install && npm run cdk -- deploy"
   },
   "repository": {
     "type": "git",

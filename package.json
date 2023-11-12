@@ -1,0 +1,22 @@
+{
+  "name": "aws-private-api-gateway-deployment",
+  "version": "1.0.0",
+  "description": "AWS Private API Gateway Deployment",
+  "main": "index.js",
+  "scripts": {
+    "test": "pytest --cov"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/Jeandsmith/aws-private-api-gateway-deployment.git"
+  },
+  "author": "James S. Abreu Mieses",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Jeandsmith/aws-private-api-gateway-deployment/issues"
+  },
+  "homepage": "https://github.com/Jeandsmith/aws-private-api-gateway-deployment#readme",
+  "dependencies": {
+    "aws-cdk": "2.106.1"
+  }
+}
